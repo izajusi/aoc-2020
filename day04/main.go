@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
-	"log"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/izajusi/aoc-2020"
 )
 
 func main() {
@@ -24,7 +23,9 @@ func main() {
 	}
 
 	var cnt int
-	for _, pass := range getPassports(*path) {
+	strArrs := aoc.ReadStringArrs(*path)
+	for _, strs := range strArrs {
+		pass := parsePassport(strs)
 		if validF(pass) {
 			cnt++
 		}
@@ -35,14 +36,10 @@ func main() {
 
 type passport map[string]string
 
-func getPassports(path string) []passport {
-	f, err := os.Open(path)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer f.Close()
+func parsePassport(lines []string) passport {
+	pass := make(passport)
 
-	parsePassport := func(pass passport, line string) {
+	for _, line := range lines {
 		strs := strings.Split(line, " ")
 		for _, str := range strs {
 			kv := strings.Split(str, ":")
@@ -50,25 +47,7 @@ func getPassports(path string) []passport {
 		}
 	}
 
-	var passports []passport
-	scanner := bufio.NewScanner(f)
-	pass := make(passport)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			passports = append(passports, pass)
-			pass = make(passport)
-			continue
-		}
-
-		parsePassport(pass, line)
-	}
-
-	// Flush the last passport.
-	passports = append(passports, pass)
-
-	return passports
+	return pass
 }
 
 type fieldValidFunc func(string) bool

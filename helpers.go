@@ -23,6 +23,34 @@ func ReadStrings(path string) []string {
 	return strs
 }
 
+func ReadStringArrs(path string) [][]string {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	strArrs := make([][]string, 0)
+	strs := make([]string, 0)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			strArrs = append(strArrs, strs)
+			strs = make([]string, 0)
+			continue
+		}
+
+		strs = append(strs, line)
+	}
+
+	// Flush the last array.
+	strArrs = append(strArrs, strs)
+
+	return strArrs
+}
+
 func ReadInts(path string) []int {
 	f, err := os.Open(path)
 	if err != nil {
